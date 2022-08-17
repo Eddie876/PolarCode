@@ -8,21 +8,26 @@ using namespace std;
 
 const int N = sizeof(ReliabilitySequence) / sizeof(int);
 
-vector<vector<int>> Calculate(vector<vector<int>> matrix) {
+vector<int> CalculateMatrix(vector<int> arrayLeft, vector<int> arrayRight) {
+    vector<int> newArray(arrayLeft.size() * 2);
+    for (int i = 0; i < arrayLeft.size(); i++)
+    {
+        newArray[i] = (arrayLeft[i] + arrayRight[i]) % 2;
+        newArray[i + arrayLeft.size()] = arrayRight[i] % 2;
+    }
+    return newArray;
+}
+
+vector<vector<int>> CalculateLayer(vector<vector<int>> matrix) {
     int layer = log2(N);
     while (layer > 0) {
         layer--;
         int size = pow(2, layer);
         vector<vector<int>> newMatrix(size);
         for (int i = 0; i < newMatrix.size(); i++) {
-            vector<int> arrayLeft = matrix[2 * i];
-            vector<int> arrayRight = matrix[2 * i + 1];
-            vector<int> newArray(arrayLeft.size() + arrayRight.size());
-            for (int j = 0; j < arrayLeft.size(); j++) {
-                newArray[j] = (arrayLeft[j] + arrayRight[j]) % 2;
-                newArray[j + arrayLeft.size()] = arrayRight[j] % 2;
-            }
-            newMatrix[i] = newArray;
+            auto arrayLeft = matrix[2 * i];
+            auto arrayRight = matrix[2 * i + 1];
+            newMatrix[i] = CalculateMatrix(arrayLeft, arrayRight);
         }
         matrix = newMatrix;
     }
@@ -108,7 +113,7 @@ int main() {
     cout << endl;
 
     //進行運算
-    auto result = Calculate(matrix);
+    auto result = CalculateLayer(matrix);
     cout << "result：" << endl;
     PrintMatrix(result);
 
