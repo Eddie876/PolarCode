@@ -1,5 +1,4 @@
 ﻿// PolarCode.cpp: 定義應用程式的進入點。
-//
 
 #include "PolarCode.h"
 #include <stdio.h>
@@ -52,7 +51,12 @@ vector<int> CreateMessage(int size) {
 }
 
 vector<int> SortMessage(vector<int> array) {
-    return array;
+    vector<int> newArray(array.size());
+    for (int i = 0; i < array.size(); i++) {
+        auto position = ReliabilitySequence[i];
+        newArray[position] = array[i];
+    }
+    return newArray;
 }
 
 void PrintArray(vector<int> array) {
@@ -97,7 +101,7 @@ int main() {
 
     //將message依Reliability Sequence排序
     auto sortedMessages = SortMessage(message);
-    cout << "sortedMessages：" << endl;
+    cout << "sorted messages：" << endl;
     PrintArray(sortedMessages);
     cout << endl;
 
@@ -113,7 +117,7 @@ int main() {
     //進行運算
     auto result = Calculate(matrix);
     cout << "result：" << endl;
-    PrintMatrix(matrix);    
+    PrintMatrix(result);
 
     return 0;
 }
