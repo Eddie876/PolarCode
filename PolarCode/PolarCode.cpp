@@ -1,14 +1,7 @@
 ﻿// PolarCode.cpp: 定義應用程式的進入點。
 
 #include "PolarCode.h"
-#include <stdio.h>
 #include <iostream>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <random>
-#include <iomanip>
-#include <cmath>
 #include <vector>
 
 using namespace std;
