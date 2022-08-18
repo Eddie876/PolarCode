@@ -10,10 +10,10 @@ const int N = sizeof(ReliabilitySequence) / sizeof(int);
 
 vector<int> CalculateMatrix(vector<int> arrayLeft, vector<int> arrayRight) {
     vector<int> newArray(arrayLeft.size() * 2);
-    for (int j = 0; j < arrayLeft.size(); j++)
+    for (int i = 0; i < arrayLeft.size(); i++)
     {
-        newArray[j] = (arrayLeft[j] + arrayRight[j]) % 2;
-        newArray[j + arrayLeft.size()] = arrayRight[j] % 2;
+        newArray[i] = arrayLeft[i] ^= arrayRight[i];
+        newArray[i + arrayLeft.size()] = arrayRight[i];
     }
     return newArray;
 }
@@ -66,26 +66,20 @@ void PrintArray(vector<int> array) {
         if (i < array.size() - 1)
             cout << ",";
     }
-    cout << "]"  << endl;
+    cout << "]";
 }
 
 void PrintMatrix(vector<vector<int>> matrix) {
     cout << "{";
     for (int i = 0; i < matrix.size(); i++) {
-        cout << "[";
-        for (int j = 0; j < matrix[i].size(); j++) {
-            cout << matrix[i][j];
-            if (j < matrix[i].size() - 1)
-                cout << ",";
-        }
-        cout << "]";
+        PrintArray(matrix[i]);
         if (i < matrix.size() - 1)
             cout << ",";
     }
     for (auto array : matrix) {
         
     }
-    cout << "}" << endl;
+    cout << "}";
 }
 
 int main() {
@@ -97,13 +91,13 @@ int main() {
     auto message = CreateMessage(size);
     cout << "message：" << endl;
     PrintArray(message);
-    cout << endl;
+    cout << endl << endl;
 
     //將message依Reliability Sequence排序
     auto sortedMessages = SortMessage(message);
     cout << "sorted messages：" << endl;
     PrintArray(sortedMessages);
-    cout << endl;
+    cout << endl << endl;
 
     //將陣列轉為矩陣，以便進行運算
     vector<vector<int>> matrix(N);
@@ -112,7 +106,7 @@ int main() {
     }
     cout << "matrix：" << endl;
     PrintMatrix(matrix);
-    cout << endl;
+    cout << endl << endl;
 
     //進行運算
     auto result = CalculateLayer(matrix);
