@@ -76,9 +76,6 @@ void PrintMatrix(vector<vector<int>> matrix) {
         if (i < matrix.size() - 1)
             cout << ",";
     }
-    for (auto array : matrix) {
-        
-    }
     cout << "}";
 }
 
