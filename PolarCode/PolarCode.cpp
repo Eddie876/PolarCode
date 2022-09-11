@@ -12,7 +12,7 @@ vector<int> EncodeArray(vector<int> arrayLeft, vector<int> arrayRight) {
     vector<int> newArray(arrayLeft.size() * 2);
     for (int i = 0; i < arrayLeft.size(); i++)
     {
-        newArray[i] = arrayLeft[i] ^= arrayRight[i];
+        newArray[i] = arrayLeft[i] ^ arrayRight[i];
         newArray[i + arrayLeft.size()] = arrayRight[i];
     }
     return newArray;
@@ -39,7 +39,7 @@ pair<vector<int>, vector<int>> DecodeArray(vector<int> array) {
     vector<int> arrayRight(array.begin() + array.size() / 2, array.end());
     for (int i = 0; i < arrayLeft.size(); i++)
     {
-        arrayLeft[i] = arrayLeft[i] ^= arrayRight[i];
+        arrayLeft[i] ^= arrayRight[i];
     }
     return { arrayLeft , arrayRight };
 }
@@ -51,9 +51,9 @@ vector<vector<int>> DecodeMatrix(vector<vector<int>> matrix) {
         int size = pow(2, log2(N) - layer);
         vector<vector<int>> newMatrix(size);
         for (int i = 0; i < matrix.size(); i++) {
-            auto result = DecodeArray(matrix[i]);
-            newMatrix[2 * i] = result.first;
-            newMatrix[2 * i + 1] = result.second;
+            auto newArray = DecodeArray(matrix[i]);
+            newMatrix[2 * i] = newArray.first;
+            newMatrix[2 * i + 1] = newArray.second;
         }
         matrix = newMatrix;
     }
@@ -74,10 +74,10 @@ vector<int> CreateMessage(int size) {
     return message;
 }
 
-vector<int> SortMessage(vector<int> array) {
+vector<int> SortMessage(const int sequence[], vector<int> array) {
     vector<int> newArray(array.size());
     for (int i = 0; i < array.size(); i++) {
-        auto position = ReliabilitySequence[i];
+        auto position = sequence[i];
         newArray[position] = array[i];
     }
     return newArray;
@@ -111,7 +111,7 @@ void Calculate(int size) {
     cout << endl << endl;
 
     //將message依Reliability Sequence排序
-    auto sortedMessages = SortMessage(message);
+    auto sortedMessages = SortMessage(ReliabilitySequence, message);
     cout << "Sorted Message：" << endl;
     PrintArray(sortedMessages);
     cout << endl << endl;
