@@ -81,6 +81,89 @@ vector<vector<int>> EncodeMatrix(vector<vector<int>> oldMatrix) {
 }
 #pragma endregion
 
+#pragma region DeCode
+vector<vector<int>> BPSK(vector<vector<int>> matrix) {
+    for (int i = 0; i < matrix.size(); i++) {
+        for (int j = 0; j < matrix[i].size(); j++) {
+            if (i < matrix[i][j] == 0)
+                matrix[i][j] = 1;
+            else
+                matrix[i][j] = -1;
+        }
+    }
+    return matrix;
+}
+int FuncSGN(double num) {
+    if (num < 0)
+        return -1;
+    else if (num == 0)
+        return 0;
+    return 1;
+}
+vector<int> FuncDecision(vector<int> oldArray) {
+    vector<int> newArray(oldArray.size());
+    for (int i = 0; i < oldArray.size(); i++) {
+        if (oldArray[i] >= 0)
+            newArray[i] = 0;
+        else
+            newArray[i] = 1;
+    }
+    return newArray;
+}
+vector<int> FuncF(vector<int> oldArray) {
+    int size = oldArray.size() / 2;
+    vector<int> newArray(size);
+    for (int i = 0; i < newArray.size(); i++) {
+        newArray[i] = FuncSGN(oldArray[i]) * FuncSGN(oldArray[i + size]) * (min(abs(oldArray[i]), abs(oldArray[i + size])));
+    }
+    return newArray;
+}
+vector<int> FuncG(vector<int> oldArray, vector<int> decisions) {
+    int size = oldArray.size() / 2;
+    vector<int> newArray(size);
+    for (int i = 0; i < newArray.size(); i++) {
+        newArray[i] = oldArray[i + size] + (1 - 2 * decisions[i]) * oldArray[i];
+    }
+    return newArray;
+}
+
+pair<vector<int>, vector<int>> DecodeArray(vector<int> oldArray) {
+    vector<int> arrayLeft = FuncF(oldArray);
+
+    if (arrayLeft.size() == 1) {
+        arrayLeft = FuncDecision(arrayLeft);
+        auto arrayRight = FuncG(oldArray, arrayLeft);
+        arrayRight = FuncDecision(arrayRight);
+        return { arrayLeft, arrayRight };
+    }
+    auto children = DecodeArray(arrayLeft);
+    if (children.first.size() > 1) {
+        children.first = FuncDecision(children.first);
+        children.second = FuncDecision(children.second);
+    }
+    auto decisions = EncodeArray(children.first, children.second);
+
+    vector<int> arrayRight = FuncG(oldArray, decisions);
+
+    return { arrayLeft , arrayRight };
+}
+
+vector<vector<int>> DecodeMatrix(vector<vector<int>> oldMatrix) {
+    vector<vector<int>> newMatrix(oldMatrix.size() * 2);
+    for (int i = 0; i < oldMatrix.size(); i++)
+    {
+        auto result = DecodeArray(oldMatrix[i]);
+        newMatrix[2 * i] = result.first;
+        newMatrix[2 * i + 1] = result.second;
+    }
+
+    if (newMatrix[0].size() > 1)
+    {
+        return DecodeMatrix(newMatrix);
+    }
+    return newMatrix;
+}
+#pragma endregion
 
 void Calculate(int size) {
     //產生K個bit的message，並將前面的frozen bits補滿0
