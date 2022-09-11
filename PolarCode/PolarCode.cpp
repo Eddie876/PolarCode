@@ -8,34 +8,6 @@ using namespace std;
 
 const int N = sizeof(ReliabilitySequence) / sizeof(int);
 
-vector<int> CalculateMatrix(vector<int> arrayLeft, vector<int> arrayRight) {
-    vector<int> newArray(arrayLeft.size() * 2);
-    for (int i = 0; i < arrayLeft.size(); i++)
-    {
-        newArray[i] = arrayLeft[i] ^= arrayRight[i];
-        newArray[i + arrayLeft.size()] = arrayRight[i];
-    }
-    return newArray;
-}
-
-vector<vector<int>> CalculateLayer(vector<vector<int>> oldMatrix) {
-    int size = oldMatrix.size() / 2;
-    vector<vector<int>> newMatrix(size);
-
-    for (int i = 0; i < newMatrix.size(); i++)
-    {
-        auto arrayLeft = oldMatrix[2 * i];
-        auto arrayRight = oldMatrix[2 * i + 1];
-        newMatrix[i] = CalculateMatrix(arrayLeft, arrayRight);
-    }
-
-    if (newMatrix.size() > 1)
-    {
-        return CalculateLayer(newMatrix);
-    }
-    return newMatrix;
-}
-
 vector<int> CreateMessage(int size) {
     //第1個到第N-K個是frozen bits；第N-K+1個~第N個是message bits
     //故將0放入第N-K個的位置；將message放入第N-K+1個~第N個的位置
@@ -79,20 +51,47 @@ void PrintMatrix(vector<vector<int>> matrix) {
     cout << "}";
 }
 
-int main() {
-    cout << "請輸入message數：";
-    int size;
-    cin >> size;
+#pragma region Encode
+vector<int> EncodeArray(vector<int> arrayLeft, vector<int> arrayRight) {
+    vector<int> newArray(arrayLeft.size() * 2);
+    for (int i = 0; i < arrayLeft.size(); i++)
+    {
+        newArray[i] = arrayLeft[i] ^= arrayRight[i];
+        newArray[i + arrayLeft.size()] = arrayRight[i];
+    }
+    return newArray;
+}
 
+vector<vector<int>> EncodeMatrix(vector<vector<int>> oldMatrix) {
+    int size = oldMatrix.size() / 2;
+    vector<vector<int>> newMatrix(size);
+
+    for (int i = 0; i < newMatrix.size(); i++)
+    {
+        auto arrayLeft = oldMatrix[2 * i];
+        auto arrayRight = oldMatrix[2 * i + 1];
+        newMatrix[i] = EncodeArray(arrayLeft, arrayRight);
+    }
+
+    if (newMatrix.size() > 1)
+    {
+        return EncodeMatrix(newMatrix);
+    }
+    return newMatrix;
+}
+#pragma endregion
+
+
+void Calculate(int size) {
     //產生K個bit的message，並將前面的frozen bits補滿0
     auto message = CreateMessage(size);
-    cout << "message：" << endl;
+    cout << "Message：" << endl;
     PrintArray(message);
     cout << endl << endl;
 
     //將message依Reliability Sequence排序
     auto sortedMessages = SortMessage(message);
-    cout << "sorted messages：" << endl;
+    cout << "Sorted Message：" << endl;
     PrintArray(sortedMessages);
     cout << endl << endl;
 
@@ -101,15 +100,34 @@ int main() {
     for (int i = 0; i < N; i++) {
         matrix[i] = { sortedMessages[i] };
     }
-    cout << "matrix：" << endl;
+    cout << "Message Matrix：" << endl;
     PrintMatrix(matrix);
     cout << endl << endl;
 
-    //進行運算
-    auto result = CalculateLayer(matrix);
-    cout << "result：" << endl;
-    PrintMatrix(result);
+    //進行編碼
+    auto encodedMessage = EncodeMatrix(matrix);
+    cout << "Encoded Message：" << endl;
+    PrintMatrix(encodedMessage);
+    cout << endl << endl;
 
-    return 0;
+    //進行BPSK變換
+    auto bpsk = BPSK(encodedMessage);
+    cout << "BPSK Message：" << endl;
+    PrintMatrix(bpsk);
+    cout << endl << endl;
+
+    //進行解碼
+    auto decodedMessage = DecodeMatrix(bpsk);
+    cout << "Decoded Message：" << endl;
+    PrintMatrix(decodedMessage);
+    cout << endl << endl << "============================================================" << endl << endl;
 }
 
+int main() {
+    while (true) {
+        cout << "請輸入message數：";
+        int size;
+        cin >> size;
+        Calculate(size);
+    }
+}
